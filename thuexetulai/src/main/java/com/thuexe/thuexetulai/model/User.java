@@ -14,13 +14,15 @@ public class User {
 
     private String email;
 
-    private String phone;   // thêm dòng này
+    private String phone;
 
     private String password;
 
     private String role; // ADMIN hoặc USER
 
     public User(){}
+
+    // ================= GETTER =================
 
     public Long getId() {
         return id;
@@ -34,7 +36,7 @@ public class User {
         return email;
     }
 
-    public String getPhone() {   // getter phone
+    public String getPhone() {
         return phone;
     }
 
@@ -45,6 +47,8 @@ public class User {
     public String getRole() {
         return role;
     }
+
+    // ================= SETTER =================
 
     public void setId(Long id) {
         this.id = id;
@@ -58,7 +62,7 @@ public class User {
         this.email = email;
     }
 
-    public void setPhone(String phone) {   // setter phone
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
@@ -66,8 +70,12 @@ public class User {
         this.password = password;
     }
 
+    // 🔥 FIX QUAN TRỌNG NHẤT
     public void setRole(String role) {
-        this.role = role;
+        if (role != null) {
+            this.role = role.trim().toUpperCase();
+        } else {
+            this.role = "USER";
+        }
     }
-
 }

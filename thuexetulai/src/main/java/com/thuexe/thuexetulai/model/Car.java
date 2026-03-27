@@ -11,83 +11,35 @@ public class Car {
     private Long id;
 
     private String name;
-
     private String brand;
-
     private int seats;
-
     private double price;
 
     @Column(name = "fuel_type")
     private String fuelType;
 
     private String transmission;
-
     private String image;
 
     public Car(){}
 
-    public Long getId() {
-        return id;
-    }
+    // GETTER
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public String getBrand() { return brand; }
+    public int getSeats() { return seats; }
+    public double getPrice() { return price; }
+    public String getFuelType() { return fuelType; }
+    public String getTransmission() { return transmission; }
+    public String getImage() { return image; }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public int getSeats() {
-        return seats;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public String getFuelType() {
-        return fuelType;
-    }
-
-    public String getTransmission() {
-        return transmission;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public void setSeats(int seats) {
-        this.seats = seats;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public void setFuelType(String fuelType) {
-        this.fuelType = fuelType;
-    }
-
-    public void setTransmission(String transmission) {
-        this.transmission = transmission;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
+    // SETTER
+    public void setId(Long id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public void setSeats(int seats) { this.seats = seats; }
+    public void setPrice(double price) { this.price = price; }
+    public void setFuelType(String fuelType) { this.fuelType = fuelType; }
+    public void setTransmission(String transmission) { this.transmission = transmission; }
+    public void setImage(String image) { this.image = image; }
 }

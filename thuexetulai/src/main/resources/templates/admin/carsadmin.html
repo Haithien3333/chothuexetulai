@@ -73,9 +73,9 @@
 
                     <!-- NÚT ADMIN -->
 
-                    <a th:href="@{'/admin/cars/edit/' + ${car.id}}"
-                       class="btn btn-warning w-100 mb-2">
-                        ✏️ Sửa xe
+                    <a th:href="@{/admin/cars/edit/{id}(id=${car.id})}"
+                       class="btn btn-warning">
+                        Sửa
                     </a>
 
                     <a th:href="@{'/admin/cars/delete/' + ${car.id}}"

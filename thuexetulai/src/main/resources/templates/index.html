@@ -35,9 +35,21 @@
 
 <div class="container mt-5">
 
-    <h2 class="text-center mb-4">🚘 Danh sách xe</h2>
+    <!-- TIÊU ĐỀ + NÚT ADMIN -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <!-- DEBUG (có thể xóa sau) -->
+        <h2>🚘 Danh sách xe</h2>
+
+        <!-- ADMIN -->
+        <div th:if="${session.user != null and session.user.role?.trim() == 'ADMIN'}">
+            <a href="/admin/cars/add" class="btn btn-success">
+                ➕ Thêm xe
+            </a>
+        </div>
+
+    </div>
+
+    <!-- DEBUG (có thể xóa) -->
     <!--
     <p th:text="${session.user}"></p>
     <p th:text="${session.user.role}"></p>
@@ -70,36 +82,42 @@
                         VND / ngày
                     </p>
 
-                    <!-- ================= CHƯA LOGIN ================= -->
+                    <!-- CHƯA LOGIN -->
                     <div th:if="${session.user == null}">
                         <a href="/login" class="btn btn-secondary w-100">
-                            Đăng nhập để thuê xe
+                            🔐 Đăng nhập để thuê xe
                         </a>
                     </div>
 
-                    <!-- ================= USER ================= -->
+                    <!-- USER -->
                     <div th:if="${session.user != null and session.user.role?.trim() == 'USER'}">
                         <a th:href="@{'/booking/' + ${car.id}}"
                            class="btn btn-success w-100">
-                            Thuê xe
+                            🚗 Thuê xe
                         </a>
                     </div>
 
-                    <!-- ================= ADMIN ================= -->
+                    <!-- ADMIN -->
                     <div th:if="${session.user != null and session.user.role?.trim() == 'ADMIN'}">
 
                         <a th:href="@{'/admin/cars/edit/' + ${car.id}}"
                            class="btn btn-warning w-100 mb-2">
-                            Sửa
+                            ✏️ Sửa
                         </a>
 
                         <a th:href="@{'/admin/cars/delete/' + ${car.id}}"
                            class="btn btn-danger w-100"
-                           onclick="return confirm('Bạn có chắc muốn xóa?')">
-                            Xóa
+                           onclick="return confirm('Bạn có chắc muốn xóa xe này?')">
+                            🗑️ Xóa
                         </a>
 
                     </div>
+
+                    <!-- XEM CHI TIẾT -->
+                    <a th:href="@{'/car/' + ${car.id}}"
+                       class="btn btn-primary w-100 mt-2">
+                        🔍 Xem chi tiết
+                    </a>
 
                 </div>
 
@@ -120,4 +138,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

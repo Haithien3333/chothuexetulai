@@ -3,10 +3,11 @@ package com.thuexe.thuexetulai.repository;
 import com.thuexe.thuexetulai.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<User,Long> {
+import java.util.Optional;
 
-    User findByEmail(String email);
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByEmailAndPassword(String email,String password);
+    Optional<User> findByEmail(String email);
 
+    boolean existsByEmail(String email);
 }

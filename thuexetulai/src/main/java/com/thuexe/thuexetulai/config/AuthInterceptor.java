@@ -20,16 +20,26 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         String uri = request.getRequestURI();
 
-        // chưa login
+        // DEBUG (xem log console)
+        System.out.println("➡️ URI: " + uri);
+        System.out.println("➡️ USER: " + user);
+
+        // ================= CHƯA LOGIN =================
         if (user == null) {
             response.sendRedirect("/login");
             return false;
         }
 
-        // không phải admin mà vào admin
-        if (uri.startsWith("/admin") && !"ADMIN".equals(user.getRole())) {
-            response.sendRedirect("/");
-            return false;
+        // ================= CHECK ADMIN =================
+        if (uri.startsWith("/admin")) {
+
+            String role = user.getRole();
+
+            // FIX: chống lỗi null + khoảng trắng + viết hoa/thường
+            if (role == null || !role.trim().equalsIgnoreCase("ADMIN")) {
+                response.sendRedirect("/");
+                return false;
+            }
         }
 
         return true;

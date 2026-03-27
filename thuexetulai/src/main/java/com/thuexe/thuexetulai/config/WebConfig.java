@@ -15,6 +15,18 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/admin/**"); // chặn admin
+
+                // CHỈ CHẶN ADMIN
+                .addPathPatterns("/admin/**")
+
+                // KHÔNG CHẶN CÁC TRANG PUBLIC
+                .excludePathPatterns(
+                        "/login",
+                        "/register",
+                        "/",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**"
+                );
     }
 }

@@ -33,7 +33,19 @@
 
 <div class="container mt-5">
 
-    <h2 class="text-center mb-4">🚗 Danh sách xe</h2>
+    <!-- TIÊU ĐỀ + NÚT ADMIN -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>🚗 Danh sách xe</h2>
+
+        <!-- CHỈ ADMIN MỚI THẤY -->
+        <div th:if="${session.user != null and session.user.role == 'ADMIN'}">
+            <a href="/admin/cars/add" class="btn btn-success">
+                ➕ Thêm xe
+            </a>
+        </div>
+
+    </div>
 
     <div class="row">
 
@@ -64,19 +76,31 @@
 
                     <!-- USER -->
                     <div th:if="${session.user != null and session.user.role == 'USER'}">
-
                         <a th:href="@{'/booking/' + ${car.id}}"
                            class="btn btn-success w-100 mb-2">
                             🚗 Thuê xe
                         </a>
-
                     </div>
 
                     <!-- CHƯA LOGIN -->
                     <div th:if="${session.user == null}">
-
                         <a href="/login" class="btn btn-secondary w-100 mb-2">
-                            Đăng nhập để thuê
+                            🔐 Đăng nhập để thuê
+                        </a>
+                    </div>
+
+                    <!-- ADMIN -->
+                    <div th:if="${session.user != null and session.user.role == 'ADMIN'}">
+
+                        <a th:href="@{'/admin/cars/edit/' + ${car.id}}"
+                           class="btn btn-warning w-100 mb-2">
+                            ✏️ Sửa
+                        </a>
+
+                        <a th:href="@{'/admin/cars/delete/' + ${car.id}}"
+                           class="btn btn-danger w-100 mb-2"
+                           onclick="return confirm('Bạn có chắc muốn xóa xe này?')">
+                            🗑️ Xóa
                         </a>
 
                     </div>
@@ -84,7 +108,7 @@
                     <!-- XEM CHI TIẾT -->
                     <a th:href="@{'/car/' + ${car.id}}"
                        class="btn btn-primary w-100">
-                        Xem chi tiết
+                        🔍 Xem chi tiết
                     </a>
 
                 </div>

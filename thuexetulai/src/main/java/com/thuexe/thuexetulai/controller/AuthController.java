@@ -8,97 +8,93 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Controller
 public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
 
-    // ======================
-    // PAGE LOGIN
-    // ======================
+    // ================= LOGIN PAGE =================
     @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
 
-    // ======================
-    // PAGE REGISTER
-    // ======================
+    // ================= REGISTER PAGE =================
     @GetMapping("/register")
     public String registerPage() {
         return "register";
     }
 
-    // ======================
-    // REGISTER
-    // ======================
+    // ================= REGISTER =================
     @PostMapping("/register")
     public String register(@ModelAttribute User user,
                            @RequestParam String confirmPassword,
                            Model model) {
 
-        // kiểm tra email tồn tại
-        User exist = userRepository.findByEmail(user.getEmail());
-
-        if (exist != null) {
+        // check email tồn tại
+        if (userRepository.existsByEmail(user.getEmail())) {
             model.addAttribute("error", "Email đã tồn tại");
             return "register";
         }
 
-        // kiểm tra confirm password
+        // check password
         if (!user.getPassword().equals(confirmPassword)) {
             model.addAttribute("error", "Mật khẩu không khớp");
             return "register";
         }
 
-        // set role mặc định
         user.setRole("USER");
-
         userRepository.save(user);
 
         return "redirect:/login";
     }
 
-    // ======================
-    // LOGIN
-    // ======================
+    // ================= LOGIN =================
     @PostMapping("/login")
     public String login(@RequestParam String email,
                         @RequestParam String password,
                         HttpSession session,
                         Model model) {
 
-        User user = userRepository.findByEmailAndPassword(email, password);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        // login sai
-        if (user == null) {
-            model.addAttribute("error", "Email hoặc mật khẩu không đúng");
+        // ❌ email không tồn tại
+        if (optionalUser.isEmpty()) {
+            model.addAttribute("error", "Email không tồn tại");
             return "login";
         }
 
-        // lưu session
+        User user = optionalUser.get();
+
+        // ❌ sai mật khẩu
+        if (!user.getPassword().equals(password)) {
+            model.addAttribute("error", "Sai mật khẩu");
+            return "login";
+        }
+
+        // chuẩn hóa role
+        String role = user.getRole() != null ? user.getRole().trim().toUpperCase() : "";
+        user.setRole(role);
+
         session.setAttribute("user", user);
 
-        // debug (in ra console)
-        System.out.println("LOGIN SUCCESS: " + user.getEmail() + " | ROLE: " + user.getRole());
+        System.out.println("LOGIN SUCCESS: " + email + " | ROLE: " + role);
 
         // phân quyền
-        if ("ADMIN".equals(user.getRole())) {
-            return "redirect:/admin/cars"; // sửa lại chuẩn hơn
+        if (role.equals("ADMIN")) {
+            return "redirect:/admin/cars";
         }
 
         return "redirect:/";
     }
 
-    // ======================
-    // LOGOUT
-    // ======================
+    // ================= LOGOUT =================
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-
         session.invalidate();
-
         return "redirect:/login";
     }
 }
