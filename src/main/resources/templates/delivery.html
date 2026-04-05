@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Giao xe tận nơi</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            font-family: 'Segoe UI';
+        }
+
+        .delivery-card {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+            color: white;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        #map {
+            height: 350px;
+            border-radius: 10px;
+        }
+
+        .info-box {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .price {
+            font-size: 22px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        .btn-ship {
+            background: linear-gradient(135deg, #198754, #14532d);
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-ship:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="delivery-card">
+
+    <div class="header">
+        🚚 Giao xe tận nơi
+    </div>
+
+    <div class="p-4">
+
+        <div class="row g-4">
+
+            <!-- FORM -->
+            <div class="col-md-5">
+
+                <label class="form-label">Địa chỉ nhận xe</label>
+                <input type="text" id="address" class="form-control mb-3" placeholder="Nhập địa chỉ...">
+
+                <label class="form-label">Khoảng cách</label>
+                <input type="text" id="distance" class="form-control mb-3" readonly>
+
+                <div class="info-box mb-3">
+                    <div>🚗 Phí giao xe</div>
+                    <div class="price" id="price">0 VND</div>
+                </div>
+
+                <button class="btn btn-ship w-100" onclick="confirmDelivery()">
+                    Xác nhận giao xe
+                </button>
+
+            </div>
+
+            <!-- MAP -->
+            <div class="col-md-7">
+                <div id="map"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- GOOGLE MAP -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+
+<script>
+    let map;
+    let marker;
+
+    function initMap() {
+        const defaultLocation = { lat: 10.8231, lng: 106.6297 }; // TP HCM
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: defaultLocation,
+        });
+
+        marker = new google.maps.Marker({
+            position: defaultLocation,
+            map: map,
+            draggable: true
+        });
+
+        marker.addListener("dragend", updateLocation);
+    }
+
+    function updateLocation() {
+        const pos = marker.getPosition();
+
+        // giả lập khoảng cách
+        const distance = Math.random() * 20;
+        document.getElementById("distance").value = distance.toFixed(2) + " km";
+
+        // tính tiền (10k/km)
+        const price = distance * 10000;
+        document.getElementById("price").innerText =
+            new Intl.NumberFormat('vi-VN').format(price) + " VND";
+    }
+
+    function confirmDelivery() {
+        alert("🚚 Đã đặt giao xe thành công!");
+    }
+
+    window.onload = initMap;
+</script>
+
+</body>
+</html>

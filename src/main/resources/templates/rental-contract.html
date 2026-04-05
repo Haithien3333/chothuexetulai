@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hợp đồng thuê xe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .contract-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .contract-header {
+            background: linear-gradient(135deg, #198754, #14532d);
+            color: white;
+            border-radius: 16px 16px 0 0;
+            padding: 28px 32px;
+        }
+        .contract-header h4 { margin: 0; font-weight: 700; }
+        .contract-header small { color: rgba(255,255,255,.8); }
+        .section-title {
+            font-size: .95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #198754;
+            border-bottom: 2px solid #198754;
+            padding-bottom: 6px;
+            margin-bottom: 16px;
+        }
+        .info-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .info-row i { color: #198754; font-size: 1.1rem; margin-top: 2px; }
+        .info-row .label { font-size: .8rem; color: #888; display: block; }
+        .info-row .value { font-weight: 600; font-size: .95rem; }
+        .car-thumb {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .price-tag {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #dc3545;
+        }
+        .total-box {
+            background: linear-gradient(135deg, #fff3cd, #fff);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 16px 20px;
+        }
+        .deposit-preview {
+            background: linear-gradient(135deg, #d1e7dd, #fff);
+            border: 2px solid #198754;
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+        .form-control:focus { border-color: #198754; box-shadow: 0 0 0 .2rem rgba(25,135,84,.25); }
+        .btn-contract { background: linear-gradient(135deg, #198754, #14532d); color: #fff; border: none; font-weight: 600; padding: 12px 28px; border-radius: 8px; }
+        .btn-contract:hover { opacity: .9; color: #fff; }
+        .terms-box {
+            background: #f8f9fa;
+            border-left: 4px solid #ffc107;
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-size: .85rem;
+            color: #555;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .terms-box p { margin-bottom: 6px; }
+        @media print {
+            body { background: white; }
+            .contract-card { box-shadow: none; border: 1px solid #ddd; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+        }
+        .print-only { display: none; }
+        .qr-payment-wrap {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .qr-payment-wrap img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            background: #fff;
+            padding: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.08);
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{header :: header}"></div>
+
+<div class="container py-4 py-md-5">
+
+    <div class="contract-card">
+
+        <!-- HEADER -->
+        <div class="contract-header no-print">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-file-earmark-text fs-1"></i>
+                <div>
+                    <h4 class="mb-1">Hợp đồng thuê xe tự lái</h4>
+                    <small>Phiên bản điện tử — Mã số: <span th:text="${car.id}">__</span>/HDT-2026</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 p-md-5">
+
+            <!-- THÔNG TIN CHUNG -->
+            <div class="row g-4">
+
+                <!-- CỘT TRÁI: XE & NGƯỜI THUÊ -->
+                <div class="col-md-7">
+
+                    <!-- THÔNG TIN XE -->
+                    <p class="section-title mb-3"><i class="bi bi-car-front me-1"></i> Thông tin xe</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-5">
+                            <img th:src="${car.image != null ? car.image : 'https://via.placeholder.com/300x160'}"
+                                 class="car-thumb">
+                        </div>
+                        <div class="col-7">
+                            <div class="info-row">
+                                <i class="bi bi-badge-tm"></i>
+                                <div>
+                                    <span class="label">Tên xe</span>
+                                    <span class="value" th:text="${car.name}">—</span>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <i class="bi bi-building"></i>
+                                <div>
+                                    <span class="label">Hãng / Dòng</span>
+                                    <span class="value" th:text="${car.brand}">—</span>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <i class="bi bi-people"></i>
+                                <div>
+                                    <span class="label">Số chỗ</span>
+                                    <span class="value"><span th:text="${car.seats}">—</span> chỗ</span>
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <i class="bi bi-fuel-pump"></i>
+                                <div>
+                                    <span class="label">Nhiên liệu / Hộp số</span>
+                                    <span class="value"><span th:text="${car.fuelType}">—</span> / <span th:text="${car.transmission}">—</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- THÔNG TIN NGƯỜI THUÊ -->
+                    <p class="section-title mb-3"><i class="bi bi-person-badge me-1"></i> Người thuê</p>
+                    <div class="info-row mb-2">
+                        <i class="bi bi-person"></i>
+                        <div>
+                            <span class="label">Họ và tên</span>
+                            <span class="value" th:text="${session.user?.name ?: 'Chưa đăng nhập'}">—</span>
+                        </div>
+                    </div>
+                    <div class="info-row mb-2">
+                        <i class="bi bi-envelope"></i>
+                        <div>
+                            <span class="label">Email</span>
+                            <span class="value" th:text="${session.user?.email ?: '—'}">—</span>
+                        </div>
+                    </div>
+                    <div class="info-row mb-3">
+                        <i class="bi bi-telephone"></i>
+                        <div>
+                            <span class="label">Số điện thoại</span>
+                            <span class="value" th:text="${session.user?.phone ?: '—'}">—</span>
+                        </div>
+                    </div>
+
+                    <!-- ĐIỀU KHOẢN -->
+                    <p class="section-title mb-3"><i class="bi bi-journal-text me-1"></i> Điều khoản thuê</p>
+                    <div class="terms-box">
+                        <p><strong>1. Phạm vi sử dụng:</strong> Xe chỉ được sử dụng cho mục đích giao thông hợp pháp. Nghiêm cấm chở hàng cấm, sử dụng khi có nồng độ cồn, chất kích thích, đua xe hoặc cho thuê lại.</p>
+                        <p><strong>2. Giấy tờ:</strong> Người thuê phải xuất trình GPLX hợp lệ, CCCD/CMND còn hạn. Tuổi lái tối thiểu 21 tuổi và đủ hạng GPLX phù hợp.</p>
+                        <p><strong>3. Giá thuê &amp; đặt cọc:</strong> Giá niêm yết là giá/ngày. Khi đặt xe, bên thuê đặt cọc theo tỷ lệ đã chọn trên tổng tiền thuê; phần còn lại thanh toán khi nhận xe. Chi phí nhiên liệu, phí cầu đường, bãi đỗ (nếu có) do bên thuê tự chi trả.</p>
+                        <p><strong>4. Trách nhiệm bảo quản:</strong> Bên thuê chịu trách nhiệm bảo quản xe, khóa cửa, không để đồ giá trị trong xe khi rời đi.</p>
+                        <p><strong>5. Hư hỏng &amp; tai nạn:</strong> Mọi hư hỏng do lỗi bên thuê, vi phạm giao thông và phạt nguội trong thời gian thuê do bên thuê chịu hoàn toàn.</p>
+                        <p><strong>6. Trả xe muộn:</strong> Trả xe sau thời hạn cam kết sẽ bị tính phí 150% giá thuê/ngày cho mỗi ngày muộn.</p>
+                        <p><strong>7. Hủy đặt xe:</strong> Hủy trước 24h được hoàn tiền 100%; trong vòng 24h hoàn 50%; không hoàn nếu không thông báo.</p>
+                        <p><strong>8. Chấm dứt hợp đồng:</strong> Bên cho thuê có quyền thu hồi xe ngay nếu phát hiện sử dụng trái phép, nguy hiểm hoặc vi phạm nghiêm trọng.</p>
+                    </div>
+
+                </div>
+
+                <!-- CỘT PHẢI: NGÀY & TIỀN -->
+                <div class="col-md-5">
+
+                    <!-- THÔNG TIN THUÊ -->
+                    <p class="section-title mb-3"><i class="bi bi-calendar-event me-1"></i> Thông tin thuê</p>
+
+                    <form th:action="@{'/booking/' + ${car.id}}" method="get" id="bookingForm">
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Ngày nhận xe</label>
+                            <input type="date" class="form-control" name="startDate" id="startDate" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Ngày trả xe</label>
+                            <input type="date" class="form-control" name="endDate" id="endDate" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Ghi chú (tùy chọn)</label>
+                            <textarea class="form-control" rows="2" placeholder="Ví dụ: cần giao xe tận nơi, yêu cầu đặc biệt..."></textarea>
+                        </div>
+
+                        <!-- TÍNH TIỀN -->
+                        <div class="total-box mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Đơn giá / ngày</span>
+                                <span class="fw-semibold">
+                                    <span th:text="${#numbers.formatDecimal(car.price,0,'COMMA',0,'POINT')}">0</span> VND
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Số ngày thuê</span>
+                                <span class="fw-semibold" id="daysDisplay">—</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Tổng cộng</span>
+                                <span class="price-tag" id="totalDisplay">0 VND</span>
+                            </div>
+                        </div>
+
+                        <!-- ĐẶT CỌC -->
+                        <p class="section-title mb-2"><i class="bi bi-piggy-bank me-1"></i> Đặt cọc</p>
+                        <p class="small text-muted mb-3">Số tiền còn lại sẽ thanh toán khi nhận xe.</p>
+
+                        <p class="small fw-semibold text-secondary mb-2">Trả trước (% trên tổng tiền thuê)</p>
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            <div class="form-check p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="depositPercent" id="dp-20" value="20" checked>
+                                <label class="form-check-label fw-semibold" for="dp-20">20%</label>
+                            </div>
+                            <div class="form-check p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="depositPercent" id="dp-50" value="50">
+                                <label class="form-check-label fw-semibold" for="dp-50">50%</label>
+                            </div>
+                            <div class="form-check p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="depositPercent" id="dp-70" value="70">
+                                <label class="form-check-label fw-semibold" for="dp-70">70%</label>
+                            </div>
+                        </div>
+
+                        <div class="deposit-preview mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small fw-semibold text-success">Tiền cọc (ước tính)</span>
+                                <span class="fw-bold text-success" id="depositDisplay">—</span>
+                            </div>
+                        </div>
+
+                        <p class="small text-muted mb-3 mb-md-4">
+                            <i class="bi bi-qr-code-scan text-primary me-1"></i>
+                            Nhấn <strong>Đồng ý &amp; Đặt xe ngay</strong> để mở mã QR — dùng app ngân hàng <strong>quét mã</strong> và chuyển khoản tiền cọc.
+                        </p>
+
+                        <!-- NÚT HÀNH ĐỘNG -->
+                        <div class="d-grid gap-2 no-print">
+                            <button type="button" class="btn btn-contract btn-lg" id="btnOpenQrPayment">
+                                <i class="bi bi-check-circle me-1"></i> Đồng ý &amp; Đặt xe ngay
+                            </button>
+                            <a th:href="@{'/car/' + ${car.id}}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+                                <i class="bi bi-printer me-1"></i> In hợp đồng
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- CHỮ KÝ -->
+            <div class="row mt-5 no-print">
+                <div class="col-6 text-center">
+                    <p class="small text-muted mb-1">Người thuê</p>
+                    <div style="height:60px; border-bottom:1px solid #ccc; width:80%; margin:0 auto;"></div>
+                    <small class="text-muted" th:text="${session.user?.name ?: ''}">—</small>
+                </div>
+                <div class="col-6 text-center">
+                    <p class="small text-muted mb-1">Bên cho thuê</p>
+                    <div style="height:60px; border-bottom:1px solid #ccc; width:80%; margin:0 auto;"></div>
+                    <small class="text-muted">Đại diện thuê xe</small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-white text-center p-4 mt-4 no-print">
+    © 2026 Thuê Xe Tự Lái — Hotline: 0900 000 000
+</footer>
+
+<!-- Modal thanh toán QR -->
+<div class="modal fade" id="qrPaymentModal" tabindex="-1" aria-labelledby="qrPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success" id="qrPaymentModalLabel">
+                    <i class="bi bi-qr-code-scan me-2"></i>Quét mã QR để thanh toán cọc
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="small text-muted mb-3">Mở ứng dụng ngân hàng trên điện thoại, chọn <strong>Quét mã QR</strong> và hướng camera vào mã bên dưới (hoặc chuyển khoản thủ công theo thông tin).</p>
+                <div class="qr-payment-wrap mb-3">
+                    <img id="qrPaymentImage" src="" alt="Mã QR thanh toán cọc" width="240" height="240">
+                </div>
+                <div class="small bg-white border rounded p-3 text-start">
+                    <div class="mb-2"><span class="text-muted">Ngân hàng:</span> <strong th:text="${paymentBankName}">—</strong></div>
+                    <div class="mb-2"><span class="text-muted">Chủ tài khoản:</span> <strong th:text="${paymentAccountHolder}">—</strong></div>
+                    <div class="mb-2"><span class="text-muted">Số tài khoản:</span> <strong class="user-select-all" th:text="${paymentAccountNumber}">—</strong></div>
+                    <div class="mb-0"><span class="text-muted">Số tiền cọc:</span> <strong class="text-danger" id="qrModalAmount">—</strong></div>
+                    <div class="mt-2 pt-2 border-top"><span class="text-muted">Nội dung CK:</span> <strong class="user-select-all" id="qrModalTransferNote">—</strong></div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 flex-column gap-2">
+
+                <div class="text-success fw-bold">
+                    ⏳ Đang chờ thanh toán...
+                </div>
+
+                <div class="text-muted small">
+                    Hệ thống sẽ tự động xác nhận sau khi bạn chuyển khoản
+                </div>
+
+                <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">
+                    Đóng
+                </button>
+
+            </div>
+                <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Quay lại chỉnh sửa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="cfgPayBank" th:value="${paymentBankName}">
+<input type="hidden" id="cfgPayHolder" th:value="${paymentAccountHolder}">
+<input type="hidden" id="cfgPayAcc" th:value="${paymentAccountNumber}">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const pricePerDay = parseFloat([[${car.price}]]);
+    const carId = [[${car.id}]];
+    const bookingBase = '/booking/' + carId;
+    const startInput = document.getElementById('startDate');
+    const endInput   = document.getElementById('endDate');
+    const qrModalEl = document.getElementById('qrPaymentModal');
+    const qrModal = qrModalEl ? new bootstrap.Modal(qrModalEl) : null;
+
+    // Đặt ngày tối thiểu = hôm nay
+    const today = new Date().toISOString().split('T')[0];
+    startInput.min = today;
+    endInput.min   = today;
+
+    // Mặc định: hôm nay → ngày mai
+    startInput.value = today;
+    endInput.value   = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+
+    function selectedDepositPercent() {
+        const el = document.querySelector('input[name="depositPercent"]:checked');
+        return el ? parseInt(el.value, 10) : 20;
+    }
+
+    function calcTotal() {
+        const s = new Date(startInput.value);
+        const e = new Date(endInput.value);
+        const depositEl = document.getElementById('depositDisplay');
+        if (isNaN(s) || isNaN(e) || e <= s) {
+            document.getElementById('daysDisplay').textContent = '—';
+            document.getElementById('totalDisplay').textContent = '0 VND';
+            if (depositEl) depositEl.textContent = '—';
+            return;
+        }
+        const days = Math.ceil((e - s) / 86400000);
+        const total = days * pricePerDay;
+        document.getElementById('daysDisplay').textContent = days + ' ngày';
+        document.getElementById('totalDisplay').textContent =
+            new Intl.NumberFormat('vi-VN').format(total) + ' VND';
+        const pct = selectedDepositPercent();
+        const deposit = Math.round(total * pct / 100);
+        if (depositEl) {
+            depositEl.textContent = new Intl.NumberFormat('vi-VN').format(deposit) + ' VND';
+        }
+    }
+
+    startInput.addEventListener('change', () => {
+        endInput.min = startInput.value;
+        if (endInput.value < startInput.value) endInput.value = startInput.value;
+        calcTotal();
+    });
+    endInput.addEventListener('change', calcTotal);
+
+    document.querySelectorAll('input[name="depositPercent"]').forEach(function (radio) {
+        radio.addEventListener('change', calcTotal);
+    });
+
+    // Tính ban đầu
+    calcTotal();
+
+    function getDepositAmountVnd() {
+        const s = new Date(startInput.value);
+        const e = new Date(endInput.value);
+        if (isNaN(s) || isNaN(e) || e <= s) return 0;
+        const days = Math.ceil((e - s) / 86400000);
+        const total = days * pricePerDay;
+        return Math.round(total * selectedDepositPercent() / 100);
+    }
+
+    function buildTransferNote() {
+        return 'COC-XE-' + carId + '-' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    }
+
+    function buildQrPayload(amountVnd, transferNote) {
+        const bank = document.getElementById('cfgPayBank').value;
+        const holder = document.getElementById('cfgPayHolder').value;
+        const acc = document.getElementById('cfgPayAcc').value;
+        return [
+            'CHUYEN KHOAN DAT COC THUE XE TU LAI',
+            'Ngan hang: ' + bank,
+            'Chu TK: ' + holder,
+            'So TK: ' + acc,
+            'So tien: ' + new Intl.NumberFormat('vi-VN').format(amountVnd) + ' VND',
+            'Noi dung: ' + transferNote
+        ].join('\n');
+    }
+
+    function submitBookingForm() {
+        const form = document.getElementById('bookingForm');
+        const sd = startInput.value;
+        const ed = endInput.value;
+        const dp = document.querySelector('input[name="depositPercent"]:checked');
+        if (!sd || !ed) return;
+        let q = '?startDate=' + encodeURIComponent(sd) + '&endDate=' + encodeURIComponent(ed);
+        if (dp) q += '&depositPercent=' + encodeURIComponent(dp.value);
+        q += '&depositMethod=' + encodeURIComponent('TRANSFER');
+        form.action = bookingBase + q;
+        form.submit();
+    }
+
+    document.getElementById('btnOpenQrPayment').addEventListener('click', function () {
+        const form = document.getElementById('bookingForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        const amount = getDepositAmountVnd();
+        if (amount <= 0) {
+            alert('Vui lòng chọn ngày nhận / trả xe hợp lệ.');
+            return;
+        }
+        const note = buildTransferNote();
+        document.getElementById('qrModalAmount').textContent =
+            new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+        document.getElementById('qrModalTransferNote').textContent = note;
+        const payload = buildQrPayload(amount, note);
+        const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&ecc=M&data=' +
+            encodeURIComponent(payload);
+        document.getElementById('qrPaymentImage').src = qrUrl;
+        if (qrModal) qrModal.show();
+
+// 🔥 AUTO submit luôn (không cần bấm nút)
+        setTimeout(() => {
+            submitBookingForm();
+        }, 1000);
+    });
+
+
+</script>
+</body>
+</html>
