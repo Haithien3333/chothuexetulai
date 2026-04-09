@@ -1,0 +1,12 @@
+.idea/
+*.log
+target/
+.mvn/
+node_modules/
+.env
+*.class
+*.jar
+*.war
+*.ear
+.DS_Store
+Thumbs.db

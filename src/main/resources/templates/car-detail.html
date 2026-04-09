@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<div th:replace="~{header :: header}"></div>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết xe</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body{
+            background:#f5f5f5;
+        }
+
+        .car-box{
+            background:white;
+            border-radius:10px;
+            padding:20px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .car-img{
+            width:100%;
+            height:300px;
+            object-fit:cover;
+            border-radius:10px;
+        }
+
+        .price{
+            color:red;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        /* REVIEW */
+        .review-item{
+            background:#fff;
+            padding:12px;
+            border-radius:10px;
+            margin-top:10px;
+            border:1px solid #eee;
+        }
+
+        .review-stars{
+            color:gold;
+            font-size:18px;
+        }
+
+        .review-user{
+            font-size:13px;
+            color:#666;
+        }
+
+        .stars span{
+            font-size:30px;
+            cursor:pointer;
+            color:#ccc;
+        }
+
+        .stars span.active{
+            color:gold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+    <div class="row car-box">
+
+        <!-- REVIEW -->
+        <div class="review-section mt-4">
+
+            <div class="car-box">
+
+                <h4>⭐ Đánh giá xe</h4>
+
+                <!-- FORM -->
+                <div class="review-form">
+                    <div class="stars" id="starRating">
+                        <span data-value="1">★</span>
+                        <span data-value="2">★</span>
+                        <span data-value="3">★</span>
+                        <span data-value="4">★</span>
+                        <span data-value="5">★</span>
+                    </div>
+
+                    <textarea id="comment" placeholder="Nhập nhận xét..." class="form-control mt-2"></textarea>
+
+                    <button class="btn btn-success mt-2" onclick="submitReview()">Gửi đánh giá</button>
+                </div>
+
+                <!-- LIST -->
+                <div id="reviewList" class="mt-3"></div>
+
+            </div>
+        </div>
+
+        <!-- ẢNH -->
+        <div class="col-md-6">
+            <img th:src="${car.image}" class="car-img">
+        </div>
+
+        <!-- INFO -->
+        <div class="col-md-6">
+
+            <h3 th:text="${car.name}"></h3>
+
+            <p><b>Hãng:</b> <span th:text="${car.brand}"></span></p>
+            <p><b>Số chỗ:</b> <span th:text="${car.seats}"></span></p>
+
+            <p class="price">
+                <span th:text="${car.price}"></span> VND / ngày
+            </p>
+
+            <a th:href="@{'/car/' + ${car.id} + '/hop-dong'}"
+               class="btn btn-success w-100 mt-3">
+                🚗 Thuê xe ngay
+            </a>
+
+            <button id="wishlistBtn"
+                    class="btn btn-outline-danger w-100 mt-2"
+                    onclick="toggleWishlist()">
+                🤍 Yêu thích
+            </button>
+
+            <a href="/" class="btn btn-secondary w-100 mt-2">
+                ⬅️ Quay lại
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+    let carId = [[${car.id}]];
+    let liked = false;
+    let selectedRating = 0;
+
+    // ⭐ chọn sao
+    document.querySelectorAll("#starRating span").forEach(star => {
+        star.addEventListener("click", function () {
+            selectedRating = this.getAttribute("data-value");
+
+            document.querySelectorAll("#starRating span").forEach(s => s.classList.remove("active"));
+
+            for (let i = 0; i < selectedRating; i++) {
+                document.querySelectorAll("#starRating span")[i].classList.add("active");
+            }
+        });
+    });
+
+    // 🚀 LOAD PAGE
+    window.onload = function () {
+
+        // ❤️ load wishlist
+        fetch("/wishlist", { credentials: "include" })
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(w => {
+                if (w.car.id == carId) {
+                    liked = true;
+                    updateButton();
+                }
+            });
+        });
+
+        // ⭐ load review
+        loadReviews();
+    };
+
+    // ❤️ wishlist
+    function toggleWishlist() {
+        if (!liked) {
+            fetch("/wishlist/" + carId, {
+                method: "POST",
+                credentials: "include"
+            })
+            .then(res => res.text())
+            .then(res => {
+                if (res === "NOT_LOGIN") {
+                    alert("Bạn cần đăng nhập!");
+                    return;
+                }
+                liked = true;
+                updateButton();
+            });
+        } else {
+            fetch("/wishlist/" + carId, {
+                method: "DELETE",
+                credentials: "include"
+            })
+            .then(() => {
+                liked = false;
+                updateButton();
+            });
+        }
+    }
+
+    // 🎨 update button
+    function updateButton() {
+        const btn = document.getElementById("wishlistBtn");
+
+        if (liked) {
+            btn.classList.add("btn-danger");
+            btn.classList.remove("btn-outline-danger");
+            btn.innerHTML = "❤️ Đã yêu thích";
+        } else {
+            btn.classList.add("btn-outline-danger");
+            btn.classList.remove("btn-danger");
+            btn.innerHTML = "🤍 Yêu thích";
+        }
+    }
+
+    // ⭐ submit review
+    function submitReview() {
+
+        const comment = document.getElementById("comment").value;
+
+        fetch("/reviews/" + carId, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                rating: selectedRating,
+                comment: comment
+            })
+        })
+        .then(res => res.text())
+        .then(res => {
+
+            if(res === "NOT_LOGIN"){
+                alert("Bạn cần đăng nhập!");
+                return;
+            }
+
+            alert("Đã gửi đánh giá!");
+
+            loadReviews();
+            document.getElementById("comment").value = "";
+        });
+    }
+
+    // 📋 load review
+    function loadReviews() {
+        fetch("/reviews/car/" + carId)
+            .then(res => res.json())
+            .then(data => {
+
+                let html = "";
+
+                if(data.length === 0){
+                    html = "<p>Chưa có đánh giá</p>";
+                }
+
+                data.forEach(r => {
+                    html += `
+                        <div class="review-item">
+                            <div class="review-stars">⭐ ${"★".repeat(r.rating)}</div>
+                            <div>${r.comment}</div>
+                            <div class="review-user">👤 ${r.user.name}</div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById("reviewList").innerHTML = html;
+            });
+    }
+
+</script>
+
+</script>
+
+</body>
+</html>
